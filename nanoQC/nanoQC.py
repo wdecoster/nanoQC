@@ -54,7 +54,7 @@ def perBaseSequenceContentQuality(fqbin, qualbin, outdir):
 	axl.axis('off')
 	lines.append(l_Q)
 	plt.legend(lines, ['A', 'T', 'G', 'C', 'Quality'], loc="center", ncol=5)
-	plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality.pmg"), format='png', dpi=500)
+	plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality.png"), format='png', dpi=500)
 
 
 
