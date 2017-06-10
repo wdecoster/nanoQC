@@ -1,2 +1,2 @@
 # nanoQC
-Quality control tools for nanopore sequencing data
+Quality control tools for Oxford Nanopore sequencing data
