@@ -8,7 +8,7 @@ import argparse
 import gzip
 from Bio import SeqIO
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 def getArgs():
@@ -33,10 +33,29 @@ def main():
 	print("Using {} reads for plotting".format(len(fq)))
 	fqbin = [dat[0] for dat in fq]
 	qualbin = [dat[1] for dat in fq]
-	plotNucleotideDiversity(fqbin, os.path.join(args.outdir, "ForwardPerBaseSequenceContent.png"))
-	plotNucleotideDiversity(fqbin, os.path.join(args.outdir, "ReversePerBaseSequenceContent.png"), invert=True)
-	plotQual(qualbin, os.path.join(args.outdir, "ForwardPerBaseSequenceQuality.png"))
-	plotQual(qualbin, os.path.join(args.outdir, "ReversePerBaseSequenceQuality.png"), invert=True)
+	perBaseSequenceContentQuality(fqbin, qualbin, args.outdir)
+
+def perBaseSequenceContentQuality(fqbin, qualbin, outdir):
+	fig, axs = plt.subplots(2,2, sharex='col', sharey='row')
+	lines = plotNucleotideDiversity(axs[0,0], fqbin, os.path.join(outdir, "ForwardPerBaseSequenceContent.png"))
+	plotNucleotideDiversity(axs[0,1], fqbin, os.path.join(outdir, "ReversePerBaseSequenceContent.png"), invert=True)
+	l_Q = plotQual(axs[1,0], qualbin, os.path.join(outdir, "ForwardPerBaseSequenceQuality.png"))
+	plotQual(axs[1,1], qualbin, os.path.join(outdir, "ReversePerBaseSequenceQuality.png"), invert=True)
+	plt.setp([a.get_xticklabels() for a in axs[0, :]], visible=False)
+	plt.setp([a.get_yticklabels() for a in axs[:, 1]], visible=False)
+	for ax in axs[:,1]:
+		ax.set_ylabel('', visible=False)
+	for ax in axs[0, :]:
+		ax.set_xlabel('', visible=False)
+	axs[0,1].invert_xaxis()  # Since axes are shared I should only invert once. Twice will restore the original axis order!
+	plt.suptitle("Per base sequence content and quality")
+	axl = fig.add_axes([0.4,0.4,0.2,0.2])
+	pie = ax.plot()
+	axl.axis('off')
+	lines.append(l_Q)
+	plt.legend(lines, ['A', 'T', 'G', 'C', 'Quality'], loc="center", ncol=5)
+	plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality.pmg"), format='png', dpi=500)
+
 
 
 def getLengths(fastq):
@@ -68,7 +87,7 @@ def getBin(fq, sizeRange):
 	return [(list(rec.seq), list(rec.letter_annotations["phred_quality"])) for rec in SeqIO.parse(fq, "fastq") if sizeRange[0] < len(rec) < sizeRange[1]]
 
 
-def plotNucleotideDiversity(fqlists, name, invert=False):
+def plotNucleotideDiversity(ax, fqlists, name, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence content" plot
 	Plot fraction of nucleotides per position
@@ -78,22 +97,15 @@ def plotNucleotideDiversity(fqlists, name, invert=False):
 		fqlists = [list(reversed(read)) for read in fqlists]
 	numreads = len(fqlists)
 	sns.set_style("darkgrid")
-	plt.plot(np.array([position.count('A') / numreads for position in zip(*fqlists)]), 'green')
-	plt.plot(np.array([position.count('T') / numreads for position in zip(*fqlists)]), 'red')
-	plt.plot(np.array([position.count('G') / numreads for position in zip(*fqlists)]), 'black')
-	plt.plot(np.array([position.count('C') / numreads for position in zip(*fqlists)]), 'blue')
-	plt.legend(['A', 'T', 'G', 'C'], loc='upper right')
-	plt.xlabel('Position in read')
-	plt.ylabel('Per base sequence content')
+	l_A, = ax.plot(np.array([position.count('A') / numreads for position in zip(*fqlists)]), 'green', label='A')
+	l_T, = ax.plot(np.array([position.count('T') / numreads for position in zip(*fqlists)]), 'red', label='T')
+	l_G, = ax.plot(np.array([position.count('G') / numreads for position in zip(*fqlists)]), 'black', label='G')
+	l_C, = ax.plot(np.array([position.count('C') / numreads for position in zip(*fqlists)]), 'blue', label='C')
 	if invert:
-		ax = plt.gca()
 		ax.set_xticklabels(-1*ax.get_xticks().astype(int))
-		ax.invert_xaxis()
-	plt.savefig(name, format='png', dpi=100)
-	plt.close("all")
+	return [l_A, l_T, l_G, l_C]
 
-
-def plotQual(quallist, name, invert=False):
+def plotQual(ax, quallist, name, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence quality￼" plot
 	Plot average quality per position
@@ -101,17 +113,14 @@ def plotQual(quallist, name, invert=False):
 	'''
 	sns.set_style("darkgrid")
 	if invert:
-		plt.plot(np.array([np.mean(position) for position in zip(*[list(reversed(read)) for read in quallist])]), 'red')
-	else:
-		plt.plot(np.array([np.mean(position) for position in zip(*quallist)]), 'red')
-	plt.xlabel('Position in read')
-	plt.ylabel('Per base sequence quality')
-	if invert:
-		ax = plt.gca()
+		l_Q, = ax.plot(np.array([np.mean(position) for position in zip(*[list(reversed(read)) for read in quallist])]), 'orange', label="Quality")
+		ax.set_xlabel('Position in read from end')
 		ax.set_xticklabels(-1*ax.get_xticks().astype(int))
-		ax.invert_xaxis()
-	plt.savefig(name, format='png', dpi=100)
-	plt.close("all")
+	else:
+		l_Q, = ax.plot(np.array([np.mean(position) for position in zip(*quallist)]), 'orange', label="Quality")
+		ax.set_xlabel('Position in read from start')
+	return l_Q
+
 
 if __name__ == "__main__":
 	main()
