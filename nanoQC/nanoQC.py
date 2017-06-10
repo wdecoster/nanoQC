@@ -8,7 +8,7 @@ import argparse
 import gzip
 from Bio import SeqIO
 
-__version__ = 0.1.0
+__version__ = "0.2.0"
 
 
 def getArgs():
@@ -27,26 +27,36 @@ def getArgs():
 
 
 def main():
-	sizeRange = LengthHistogram(gzip.open(args.fastq, 'rt'))
+	args = getArgs()
+	sizeRange = LengthHistogram(gzip.open(args.fastq, 'rt'), os.path.join(args.outdir, "SequenceLengthDistribution.png"))
 	fq = getBin(gzip.open(args.fastq, 'rt'), sizeRange)
 	print("Using {} reads for plotting".format(len(fq)))
-	plotNucleotideDiversity([dat[0] for dat in fq])
-	plotQual([dat[1] for dat in fq])
+	fqbin = [dat[0] for dat in fq]
+	qualbin = [dat[1] for dat in fq]
+	plotNucleotideDiversity(fqbin, os.path.join(args.outdir, "ForwardPerBaseSequenceContent.png"))
+	plotNucleotideDiversity(fqbin, os.path.join(args.outdir, "ReversePerBaseSequenceContent.png"), invert=True)
+	plotQual(qualbin, os.path.join(args.outdir, "ForwardPerBaseSequenceQuality.png"))
+	plotQual(qualbin, os.path.join(args.outdir, "ReversePerBaseSequenceQuality.png"), invert=True)
+
 
 def getLengths(fastq):
-	'''	Loop over the fastq file, extract length of sequences'''
+	'''
+	Loop over the fastq file, extract length of sequences
+	'''
 	return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
 
 
-def LengthHistogram(fqin):
-	''' Create a histogram, and return the number of reads per bin and bin edges'''
+def LengthHistogram(fqin, name):
+	'''
+	Create a histogram, and return the bin edges of the bin containing the most reads
+	'''
 	lengths = getLengths(fqin)
 	plt.hist(lengths, bins='auto')
-	plt.savefig(os.path.join(args.outdir, "SequenceLengthDistribution.png"), format='png', dpi=1000)
+	plt.savefig(name, format='png', dpi=100)
 	plt.close("all")
 	hist, bin_edges = np.histogram(lengths, bins='auto')
 	maxindex = np.argmax(hist)
-	return((bin_edges[maxindex], bin_edges[maxindex + 1]))
+	return (bin_edges[maxindex], bin_edges[maxindex + 1])
 
 
 def getBin(fq, sizeRange):
@@ -58,12 +68,14 @@ def getBin(fq, sizeRange):
 	return [(list(rec.seq), list(rec.letter_annotations["phred_quality"])) for rec in SeqIO.parse(fq, "fastq") if sizeRange[0] < len(rec) < sizeRange[1]]
 
 
-def plotNucleotideDiversity(fqlists):
+def plotNucleotideDiversity(fqlists, name, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence content" plot
 	Plot fraction of nucleotides per position
 	zip will stop when shortest read is exhausted
 	'''
+	if invert:
+		fqlists = [list(reversed(read)) for read in fqlists]
 	numreads = len(fqlists)
 	sns.set_style("darkgrid")
 	plt.plot(np.array([position.count('A') / numreads for position in zip(*fqlists)]), 'green')
@@ -73,21 +85,32 @@ def plotNucleotideDiversity(fqlists):
 	plt.legend(['A', 'T', 'G', 'C'], loc='upper right')
 	plt.xlabel('Position in read')
 	plt.ylabel('Per base sequence content')
-	plt.savefig(os.path.join(args.outdir, "PerBaseSequenceContent.png"), format='png', dpi=1000)
+	if invert:
+		ax = plt.gca()
+		ax.set_xticklabels(-1*ax.get_xticks().astype(int))
+		ax.invert_xaxis()
+	plt.savefig(name, format='png', dpi=100)
 	plt.close("all")
 
 
-def plotQual(quallist):
+def plotQual(quallist, name, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence quality￼" plot
 	Plot average quality per position
 	zip will stop when shortest read is exhausted
 	'''
 	sns.set_style("darkgrid")
-	plt.plot(np.array([np.mean(position) for position in zip(*quallist)]), 'red')
+	if invert:
+		plt.plot(np.array([np.mean(position) for position in zip(*[list(reversed(read)) for read in quallist])]), 'red')
+	else:
+		plt.plot(np.array([np.mean(position) for position in zip(*quallist)]), 'red')
 	plt.xlabel('Position in read')
 	plt.ylabel('Per base sequence quality')
-	plt.savefig(os.path.join(args.outdir, "PerBaseSequenceQuality.png"), format='png', dpi=1000)
+	if invert:
+		ax = plt.gca()
+		ax.set_xticklabels(-1*ax.get_xticks().astype(int))
+		ax.invert_xaxis()
+	plt.savefig(name, format='png', dpi=100)
 	plt.close("all")
 
 if __name__ == "__main__":
