@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import argparse
 import gzip
 from Bio import SeqIO
+from .version import __version__
 
-__version__ = "0.3.0"
 
 
 def getArgs():
