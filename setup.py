@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 exec(open('nanoQC/version.py').read())
 
 setup(
-    name='NanoQC',
+    name='nanoQC',
     version=__version__,
     description='Create fastQC-like plots for Oxford Nanopore sequencing data',
     long_description=open(path.join(here, "README.rst")).read(),
@@ -34,12 +34,12 @@ setup(
         'matplotlib>=2.0.0'
         'biopython'
         ],
-    package_data={'NanoStat': []},
-    package_dir={'nanostat': 'nanostat'},
+    package_data={'nanoQC`': []},
+    package_dir={'nanoQC': 'nanoQC'},
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'NanoQC=nanoQC.NanoQC:main',
+            'nanoQC=nanoQC.nanoQC:main',
         ],
     },
 )
