@@ -8,6 +8,12 @@ For an example see my blog [Gigabase or gigabyte](https://gigabaseorgigabyte.wor
 ```bash
 pip install nanoQC
 ```
+or  
+![install with conda](https://anaconda.org/bioconda/nanoqc/badges/installer/conda.svg)
+```
+conda install -c bioconda nanoqc
+```
+
 
 ## USAGE
 ```
