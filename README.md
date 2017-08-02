@@ -9,7 +9,7 @@ For an example see my blog [Gigabase or gigabyte](https://gigabaseorgigabyte.wor
 pip install nanoQC
 ```
 or  
-![install with conda](https://anaconda.org/bioconda/nanoqc/badges/installer/conda.svg)
+[![install with conda](https://anaconda.org/bioconda/nanoqc/badges/installer/conda.svg)](https://anaconda.org/bioconda/nanoqc)
 ```
 conda install -c bioconda nanoqc
 ```
