@@ -37,10 +37,10 @@ def main():
 
 def perBaseSequenceContentQuality(fqbin, qualbin, outdir):
 	fig, axs = plt.subplots(2,2, sharex='col', sharey='row')
-	lines = plotNucleotideDiversity(axs[0,0], fqbin, os.path.join(outdir, "ForwardPerBaseSequenceContent.png"))
-	plotNucleotideDiversity(axs[0,1], fqbin, os.path.join(outdir, "ReversePerBaseSequenceContent.png"), invert=True)
-	l_Q = plotQual(axs[1,0], qualbin, os.path.join(outdir, "ForwardPerBaseSequenceQuality.png"))
-	plotQual(axs[1,1], qualbin, os.path.join(outdir, "ReversePerBaseSequenceQuality.png"), invert=True)
+	lines = plotNucleotideDiversity(axs[0,0], fqbin)
+	plotNucleotideDiversity(axs[0,1], fqbin, invert=True)
+	l_Q = plotQual(axs[1,0], qualbin)
+	plotQual(axs[1,1], qualbin, invert=True)
 	plt.setp([a.get_xticklabels() for a in axs[0, :]], visible=False)
 	plt.setp([a.get_yticklabels() for a in axs[:, 1]], visible=False)
 	for ax in axs[:,1]:
@@ -87,7 +87,7 @@ def getBin(fq, sizeRange):
 	return [(list(rec.seq), list(rec.letter_annotations["phred_quality"])) for rec in SeqIO.parse(fq, "fastq") if sizeRange[0] < len(rec) < sizeRange[1]]
 
 
-def plotNucleotideDiversity(ax, fqlists, name, invert=False):
+def plotNucleotideDiversity(ax, fqlists, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence content" plot
 	Plot fraction of nucleotides per position
@@ -105,7 +105,7 @@ def plotNucleotideDiversity(ax, fqlists, name, invert=False):
 		ax.set_xticklabels(-1*ax.get_xticks().astype(int))
 	return [l_A, l_T, l_G, l_C]
 
-def plotQual(ax, quallist, name, invert=False):
+def plotQual(ax, quallist, invert=False):
 	'''
 	Create a FastQC-like "￼Per base sequence quality￼" plot
 	Plot average quality per position
