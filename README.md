@@ -27,3 +27,6 @@ optional arguments:
   -v, --version    Print version and exit.
   --outdir OUTDIR  Specify directory in which output has to be created.
 ```
+
+## STATUS
+[![Code Health](https://landscape.io/github/wdecoster/nanoQC/master/landscape.svg?style=flat)](https://landscape.io/github/wdecoster/nanoQC/master)
