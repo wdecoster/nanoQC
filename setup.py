@@ -31,9 +31,9 @@ setup(
     install_requires=[
         'seaborn',
         'numpy',
-        'matplotlib>=2.0.0'
+        'matplotlib>=2.0.0',
         'biopython'
-        ],
+    ],
     package_data={'nanoQC`': []},
     package_dir={'nanoQC': 'nanoQC'},
     include_package_data=True,
