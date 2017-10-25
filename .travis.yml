@@ -7,7 +7,7 @@ python:
   - "3.6"
   - "3.6-dev" # 3.6 development branch
 # command to install dependencies
-install: "pip install -e ."
+install: "pip install nanoQC"
 # command to run tests
 script: nanoQC -h
 
