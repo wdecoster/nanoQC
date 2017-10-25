@@ -36,7 +36,7 @@ def main():
     args = getArgs()
     logging.basicConfig(
         format='%(asctime)s %(message)s',
-        filename=os.path.join(args.outdir, args.prefix + "NanoQC.log"),
+        filename=os.path.join(args.outdir, "NanoQC.log"),
         level=logging.INFO)
     logging.info("NanoQC started.")
     sizeRange = LengthHistogram(
