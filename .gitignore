@@ -1,1 +1,4 @@
 .remote-sync.json
+README.rst
+nanoQC.egg-info/
+nanoQC/__pycache__/

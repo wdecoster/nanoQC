@@ -21,6 +21,12 @@ def getArgs():
     parser.add_argument("--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
+    parser.add_argument("-f", "--format",
+                        help="Specify the output format of the plots.",
+                        default="png",
+                        type=str,
+                        choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
+                                 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
     parser.add_argument("fastq",
                         help="Reads data in fastq format.")
     return parser.parse_args()
@@ -41,11 +47,11 @@ def main():
     fqbin = [dat[0] for dat in fq]
     qualbin = [dat[1] for dat in fq]
     logging.info("Creating plots...")
-    perBaseSequenceContentQuality(fqbin, qualbin, args.outdir)
+    perBaseSequenceContentQuality(fqbin, qualbin, args.outdir, args.format)
     logging.info("Finished!")
 
 
-def perBaseSequenceContentQuality(fqbin, qualbin, outdir):
+def perBaseSequenceContentQuality(fqbin, qualbin, outdir, figformat):
     fig, axs = plt.subplots(2, 2, sharex='col', sharey='row')
     lines = plotNucleotideDiversity(axs[0, 0], fqbin)
     plotNucleotideDiversity(axs[0, 1], fqbin, invert=True)
@@ -61,11 +67,12 @@ def perBaseSequenceContentQuality(fqbin, qualbin, outdir):
     axs[0, 1].invert_xaxis()
     plt.suptitle("Per base sequence content and quality")
     axl = fig.add_axes([0.4, 0.4, 0.2, 0.2])
-    pie = ax.plot()
+    g = ax.plot()
     axl.axis('off')
     lines.append(l_Q)
     plt.legend(lines, ['A', 'T', 'G', 'C', 'Quality'], loc="center", ncol=5)
-    plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality.png"), format='png', dpi=500)
+    plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality." +
+                             figformat), format=figformat, dpi=500)
 
 
 def getLengths(fastq):
