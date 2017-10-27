@@ -69,7 +69,7 @@ def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
     axs[0, 1].invert_xaxis()
     plt.suptitle("Per base sequence content and quality")
     axl = fig.add_axes([0.4, 0.4, 0.2, 0.2])
-    g = ax.plot()
+    ax.plot()
     axl.axis('off')
     lines.append(l_Q)
     plt.legend(lines, ['A', 'T', 'G', 'C', 'Quality'], loc="center", ncol=5)
