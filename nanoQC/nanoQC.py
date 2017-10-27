@@ -186,8 +186,16 @@ def plot_kmers(genome, reads, kmersize):
             read_kmers[word] += 1
     df = pd.DataFrame([genome_kmers, read_kmers]).T
     df.columns = ["genome", "reads"]
+    df["genome_s"] = df["genome"] / df["genome"].sum()
+    df["reads_s"] = df["reads"] / df["reads"].sum()
+    df.plot(
+        kind="scatter",
+        x="reads_s",
+        y="genome_s",
+        title="kmer content correlation",
+        xlim=(0, None),
+        ylim=(0, None))
     return df
-    #scatter(x, y, names, path, color, figformat, plots, stat=None, log=False, minvalx=0, minvaly=0)
 
 
 if __name__ == "__main__":
