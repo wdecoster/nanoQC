@@ -4,15 +4,15 @@ import os
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-import argparse
+from argparse import ArgumentParser
 import gzip
 import logging
 from Bio import SeqIO
 from .version import __version__
 
 
-def getArgs():
-    parser = argparse.ArgumentParser(
+def get_args():
+    parser = ArgumentParser(
         description="Investigate nucleotide composition and base quality.")
     parser.add_argument("-v", "--version",
                         help="Print version and exit.",
@@ -33,30 +33,32 @@ def getArgs():
 
 
 def main():
-    args = getArgs()
+    args = get_args()
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
         level=logging.INFO)
     logging.info("NanoQC started.")
-    sizeRange = LengthHistogram(
+    sizeRange = length_histogram(
         fqin=gzip.open(args.fastq, 'rt'),
         name=os.path.join(args.outdir, "SequenceLengthDistribution.png"))
-    fq = getBin(gzip.open(args.fastq, 'rt'), sizeRange)
+    fq = get_bin(gzip.open(args.fastq, 'rt'), sizeRange)
     logging.info("Using {} reads for plotting".format(len(fq)))
     fqbin = [dat[0] for dat in fq]
     qualbin = [dat[1] for dat in fq]
     logging.info("Creating plots...")
-    perBaseSequenceContentQuality(fqbin, qualbin, args.outdir, args.format)
+    per_base_sequence_content_and_quality(fqbin, qualbin, args.outdir, args.format)
+    logging.info("per base sequence content and quality completed.")
+    kmerplot(args.genome)
     logging.info("Finished!")
 
 
-def perBaseSequenceContentQuality(fqbin, qualbin, outdir, figformat):
+def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
     fig, axs = plt.subplots(2, 2, sharex='col', sharey='row')
-    lines = plotNucleotideDiversity(axs[0, 0], fqbin)
-    plotNucleotideDiversity(axs[0, 1], fqbin, invert=True)
-    l_Q = plotQual(axs[1, 0], qualbin)
-    plotQual(axs[1, 1], qualbin, invert=True)
+    lines = plot_nucleotide_diversity(axs[0, 0], fqbin)
+    plot_nucleotide_diversity(axs[0, 1], fqbin, invert=True)
+    l_Q = plot_qual(axs[1, 0], qualbin)
+    plot_qual(axs[1, 1], qualbin, invert=True)
     plt.setp([a.get_xticklabels() for a in axs[0, :]], visible=False)
     plt.setp([a.get_yticklabels() for a in axs[:, 1]], visible=False)
     for ax in axs[:, 1]:
@@ -75,19 +77,19 @@ def perBaseSequenceContentQuality(fqbin, qualbin, outdir, figformat):
                              figformat), format=figformat, dpi=500)
 
 
-def getLengths(fastq):
+def get_lengths(fastq):
     '''
     Loop over the fastq file, extract length of sequences
     '''
     return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
 
 
-def LengthHistogram(fqin, name):
+def length_histogram(fqin, name):
     '''
     Create a histogram, and return the bin edges of the bin containing the most reads
     '''
     logging.info("Creating length histogram to find bin with most reads.")
-    lengths = getLengths(fqin)
+    lengths = get_lengths(fqin)
     plt.hist(lengths, bins='auto')
     plt.savefig(name, format='png', dpi=100)
     plt.close("all")
@@ -96,7 +98,7 @@ def LengthHistogram(fqin, name):
     return (bin_edges[maxindex], bin_edges[maxindex + 1])
 
 
-def getBin(fq, sizeRange):
+def get_bin(fq, sizeRange):
     '''
     Loop over the fastq file
     Extract list of nucleotides and list of quality scores in tuples in list
@@ -107,7 +109,7 @@ def getBin(fq, sizeRange):
             for rec in SeqIO.parse(fq, "fastq") if sizeRange[0] < len(rec) < sizeRange[1]]
 
 
-def plotNucleotideDiversity(ax, fqlists, invert=False):
+def plot_nucleotide_diversity(ax, fqlists, invert=False):
     '''
     Create a FastQC-like "￼Per base sequence content" plot
     Plot fraction of nucleotides per position
@@ -130,7 +132,7 @@ def plotNucleotideDiversity(ax, fqlists, invert=False):
     return [l_A, l_T, l_G, l_C]
 
 
-def plotQual(ax, quallist, invert=False):
+def plot_qual(ax, quallist, invert=False):
     '''
     Create a FastQC-like "￼Per base sequence quality￼" plot
     Plot average quality per position
