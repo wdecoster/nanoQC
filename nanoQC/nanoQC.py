@@ -7,8 +7,12 @@ import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import gzip
 import logging
+from collections import Counter
 from Bio import SeqIO
 from .version import __version__
+from itertools import islice
+import pandas as pd
+from nanoplotter import scatter
 
 
 def get_args():
@@ -21,6 +25,12 @@ def get_args():
     parser.add_argument("--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
+    parser.add_argument("-g", "--genome",
+                        help="Specify genome for which a kmerplot has to be made, in fasta format.")
+    parser.add_argument("-k", "--kmersize",
+                        help="Specify length of kmers to be used for kmer distribution plot.",
+                        default=6,
+                        type=int)
     parser.add_argument("-f", "--format",
                         help="Specify the output format of the plots.",
                         default="png",
@@ -49,7 +59,7 @@ def main():
     logging.info("Creating plots...")
     per_base_sequence_content_and_quality(fqbin, qualbin, args.outdir, args.format)
     logging.info("per base sequence content and quality completed.")
-    kmerplot(args.genome)
+    plot_kmers(args.genome, gzip.open(args.fastq, 'rt'), kmersize=6)
     logging.info("Finished!")
 
 
@@ -149,6 +159,35 @@ def plot_qual(ax, quallist, invert=False):
                                  for position in zip(*quallist)]), 'orange', label="Quality")
         ax.set_xlabel('Position in read from start')
     return l_Q
+
+
+def window(seq, n=6):
+    '''
+    Returns a sliding window (of width n) over data from the iterable
+    from https://docs.python.org/release/2.3.5/lib/itertools-example.html
+    '''
+    it = iter(seq)
+    result = tuple(islice(it, n))
+    if len(result) == n:
+        yield ''.join(result)
+    for elem in it:
+        result = result[1:] + (elem,)
+        yield ''.join(result)
+
+
+def plot_kmers(genome, reads, kmersize):
+    genome_kmers = Counter()
+    read_kmers = Counter()
+    for contig in (str(rec.seq).upper().replace("N", "") for rec in SeqIO.parse(genome, "fasta")):
+        for word in window(contig, n=kmersize):
+            genome_kmers[word] += 1
+    for read in (str(rec.seq).upper().replace("N", "") for rec in SeqIO.parse(reads, "fastq")):
+        for word in window(read, n=kmersize):
+            read_kmers[word] += 1
+    df = pd.DataFrame([genome_kmers, read_kmers]).T
+    df.columns = ["genome", "reads"]
+    return df
+    #scatter(x, y, names, path, color, figformat, plots, stat=None, log=False, minvalx=0, minvaly=0)
 
 
 if __name__ == "__main__":
