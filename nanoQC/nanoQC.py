@@ -57,7 +57,6 @@ def main():
     logging.info("Creating plots...")
     per_base_sequence_content_and_quality(fqbin, qualbin, args.outdir, args.format)
     logging.info("per base sequence content and quality completed.")
-    plot_kmers(args.genome, gzip.open(args.fastq, 'rt'), kmersize=6)
     logging.info("Finished!")
 
 
@@ -157,43 +156,6 @@ def plot_qual(ax, quallist, invert=False):
                                  for position in zip(*quallist)]), 'orange', label="Quality")
         ax.set_xlabel('Position in read from start')
     return l_Q
-
-
-def window(seq, n=6):
-    '''
-    Returns a sliding window (of width n) over data from the iterable
-    from https://docs.python.org/release/2.3.5/lib/itertools-example.html
-    '''
-    it = iter(seq)
-    result = tuple(islice(it, n))
-    if len(result) == n:
-        yield ''.join(result)
-    for elem in it:
-        result = result[1:] + (elem,)
-        yield ''.join(result)
-
-
-def plot_kmers(genome, reads, kmersize):
-    genome_kmers = Counter()
-    read_kmers = Counter()
-    for contig in (str(rec.seq).upper().replace("N", "") for rec in SeqIO.parse(genome, "fasta")):
-        for word in window(contig, n=kmersize):
-            genome_kmers[word] += 1
-    for read in (str(rec.seq).upper().replace("N", "") for rec in SeqIO.parse(reads, "fastq")):
-        for word in window(read, n=kmersize):
-            read_kmers[word] += 1
-    df = pd.DataFrame([genome_kmers, read_kmers]).T
-    df.columns = ["genome", "reads"]
-    df["genome_s"] = df["genome"] / df["genome"].sum()
-    df["reads_s"] = df["reads"] / df["reads"].sum()
-    df.plot(
-        kind="scatter",
-        x="reads_s",
-        y="genome_s",
-        title="kmer content correlation",
-        xlim=(0, None),
-        ylim=(0, None))
-    return df
 
 
 if __name__ == "__main__":
