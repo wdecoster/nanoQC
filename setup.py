@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='nanopore sequencing statistics',
-    packages=find_packages(),
+    packages=find_packages() + ['scripts'],
     install_requires=[
         'seaborn',
         'numpy',
