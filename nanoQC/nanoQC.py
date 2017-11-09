@@ -1,18 +1,16 @@
 # wdecoster
 
 import os
-import seaborn as sns
-import numpy as np
-import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import gzip
 import logging
-from collections import Counter
 from Bio import SeqIO
 from .version import __version__
-from itertools import islice
-import pandas as pd
-from nanoplotter import scatter
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def get_args():
