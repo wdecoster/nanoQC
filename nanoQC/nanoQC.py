@@ -23,12 +23,6 @@ def get_args():
     parser.add_argument("--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
-    parser.add_argument("-g", "--genome",
-                        help="Specify genome for which a kmerplot has to be made, in fasta format.")
-    parser.add_argument("-k", "--kmersize",
-                        help="Specify length of kmers to be used for kmer distribution plot.",
-                        default=6,
-                        type=int)
     parser.add_argument("-f", "--format",
                         help="Specify the output format of the plots.",
                         default="png",
