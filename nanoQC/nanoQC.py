@@ -8,13 +8,9 @@ import logging
 from Bio import SeqIO
 from .version import __version__
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import seaborn as sns
-import matplotlib.pyplot as plt
 from bokeh.plotting import figure, save, output_file
 from bokeh.layouts import gridplot
-from bokeh.models import Range1d, Axis
+from bokeh.models import Range1d
 
 
 def get_args():
@@ -76,7 +72,6 @@ def make_output_dir(path):
 
 
 def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
-    fig, axs = plt.subplots(2, 2, sharex='col', sharey='row')
     seq_plot_left = plot_nucleotide_diversity_bokeh(fqbin)
     seq_plot_right = plot_nucleotide_diversity_bokeh(
         fqbin, invert=True, y_range=seq_plot_left.y_range)
