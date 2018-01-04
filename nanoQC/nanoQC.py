@@ -36,6 +36,7 @@ def get_args():
 
 def main():
     args = get_args()
+    make_output_dir(args.outdir)
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
@@ -52,6 +53,14 @@ def main():
     per_base_sequence_content_and_quality(fqbin, qualbin, args.outdir, args.format)
     logging.info("per base sequence content and quality completed.")
     logging.info("Finished!")
+
+
+def make_output_dir(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except IOError:
+        sys.exit("ERROR: No writing permission to the output directory.")
 
 
 def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
