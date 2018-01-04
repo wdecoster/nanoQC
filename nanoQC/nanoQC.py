@@ -1,6 +1,7 @@
 # wdecoster
 
 import os
+import sys
 from argparse import ArgumentParser
 import gzip
 import logging
@@ -30,7 +31,7 @@ def get_args():
                         choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
                                  'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
     parser.add_argument("fastq",
-                        help="Reads data in fastq format.")
+                        help="Reads data in fastq.gz format.")
     return parser.parse_args()
 
 
