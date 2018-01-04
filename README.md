@@ -5,8 +5,9 @@ Quality control tools for Oxford Nanopore sequencing data aiming to replicate so
 [![install with conda](https://anaconda.org/bioconda/nanoqc/badges/installer/conda.svg)](https://anaconda.org/bioconda/nanoqc)
 [![Code Health](https://landscape.io/github/wdecoster/nanoQC/master/landscape.svg?style=flat)](https://landscape.io/github/wdecoster/nanoQC/master)
 
+Creates dynamic plots using [bokeh](https://bokeh.pydata.org/en/latest/).
+For a static example see my blog [Gigabase or gigabyte](https://gigabaseorgigabyte.wordpress.com/2017/06/15/per-base-sequence-content-and-quality-end-of-reads/)
 
-For an example see my blog [Gigabase or gigabyte](https://gigabaseorgigabyte.wordpress.com/2017/06/15/per-base-sequence-content-and-quality-end-of-reads/)
 
 ## INSTALLATION
 ```bash
@@ -29,7 +30,7 @@ positional arguments:
 optional arguments:
   -h, --help       show this help message and exit
   -v, --version    Print version and exit.
-  --outdir OUTDIR  Specify directory in which output has to be created.
+  -o, --outdir     Specify directory in which output has to be created.
 ```
 
 ## STATUS

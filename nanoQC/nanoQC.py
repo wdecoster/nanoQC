@@ -1,16 +1,16 @@
 # wdecoster
 
 import os
+import sys
 from argparse import ArgumentParser
 import gzip
 import logging
 from Bio import SeqIO
 from .version import __version__
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import seaborn as sns
-import matplotlib.pyplot as plt
+from bokeh.plotting import figure, save, output_file
+from bokeh.layouts import gridplot
+from bokeh.models import Range1d
 
 
 def get_args():
@@ -30,52 +30,55 @@ def get_args():
                         choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
                                  'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
     parser.add_argument("fastq",
-                        help="Reads data in fastq format.")
+                        help="Reads data in fastq.gz format.")
     return parser.parse_args()
 
 
 def main():
     args = get_args()
+    make_output_dir(args.outdir)
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
         level=logging.INFO)
     logging.info("NanoQC started.")
-    sizeRange = length_histogram(
+    hist, sizeRange = length_histogram(
         fqin=gzip.open(args.fastq, 'rt'),
         name=os.path.join(args.outdir, "SequenceLengthDistribution.png"))
     fq = get_bin(gzip.open(args.fastq, 'rt'), sizeRange)
     logging.info("Using {} reads for plotting".format(len(fq)))
-    fqbin = [dat[0] for dat in fq]
-    qualbin = [dat[1] for dat in fq]
     logging.info("Creating plots...")
-    per_base_sequence_content_and_quality(fqbin, qualbin, args.outdir, args.format)
-    logging.info("per base sequence content and quality completed.")
+    seq_plots, qual_plots = per_base_sequence_content_and_quality(
+        fqbin=[dat[0] for dat in fq],
+        qualbin=[dat[1] for dat in fq],
+        outdir=args.outdir,
+        figformat=args.format)
+    output_file("nanoQC.html", title="nanoQC_report")
+    save(
+        gridplot(children=[[hist], seq_plots, qual_plots],
+                 plot_width=400,
+                 plot_height=400,
+                 sizing_mode="stretch_both")
+    )
     logging.info("Finished!")
 
 
+def make_output_dir(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except IOError:
+        sys.exit("ERROR: No writing permission to the output directory.")
+
+
 def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
-    fig, axs = plt.subplots(2, 2, sharex='col', sharey='row')
-    lines = plot_nucleotide_diversity(axs[0, 0], fqbin)
-    plot_nucleotide_diversity(axs[0, 1], fqbin, invert=True)
-    l_Q = plot_qual(axs[1, 0], qualbin)
-    plot_qual(axs[1, 1], qualbin, invert=True)
-    plt.setp([a.get_xticklabels() for a in axs[0, :]], visible=False)
-    plt.setp([a.get_yticklabels() for a in axs[:, 1]], visible=False)
-    for ax in axs[:, 1]:
-        ax.set_ylabel('', visible=False)
-    for ax in axs[0, :]:
-        ax.set_xlabel('', visible=False)
-    # Since axes are shared I should only invert once. Twice will restore the original axis order!
-    axs[0, 1].invert_xaxis()
-    plt.suptitle("Per base sequence content and quality")
-    axl = fig.add_axes([0.4, 0.4, 0.2, 0.2])
-    ax.plot()
-    axl.axis('off')
-    lines.append(l_Q)
-    plt.legend(lines, ['A', 'T', 'G', 'C', 'Quality'], loc="center", ncol=5)
-    plt.savefig(os.path.join(outdir, "PerBaseSequenceContentQuality." +
-                             figformat), format=figformat, dpi=500)
+    seq_plot_left = plot_nucleotide_diversity_bokeh(fqbin)
+    seq_plot_right = plot_nucleotide_diversity_bokeh(
+        fqbin, invert=True, y_range=seq_plot_left.y_range)
+    qual_plot_left = plot_qual_bokeh(qualbin)
+    qual_plot_right = plot_qual_bokeh(qualbin, invert=True, y_range=qual_plot_left.y_range)
+    logging.info("Per base sequence content and quality completed.")
+    return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
 
 
 def get_lengths(fastq):
@@ -91,12 +94,20 @@ def length_histogram(fqin, name):
     '''
     logging.info("Creating length histogram to find bin with most reads.")
     lengths = get_lengths(fqin)
-    plt.hist(lengths, bins='auto')
-    plt.savefig(name, format='png', dpi=100)
-    plt.close("all")
-    hist, bin_edges = np.histogram(lengths, bins='auto')
+    hist, edges = np.histogram(lengths, bins='auto')
     maxindex = np.argmax(hist)
-    return (bin_edges[maxindex], bin_edges[maxindex + 1])
+
+    hist_norm = figure()
+    hist_norm.quad(
+        top=hist,
+        bottom=0,
+        left=edges[:-1],
+        right=edges[1:],
+        fill_color="#036564",
+        line_color="#033649")
+    hist_norm.xaxis[0].formatter.use_scientific = False
+
+    return (hist_norm, (edges[maxindex], edges[maxindex + 1]))
 
 
 def get_bin(fq, sizeRange):
@@ -110,46 +121,58 @@ def get_bin(fq, sizeRange):
             for rec in SeqIO.parse(fq, "fastq") if sizeRange[0] < len(rec) < sizeRange[1]]
 
 
-def plot_nucleotide_diversity(ax, fqlists, invert=False):
-    '''
-    Create a FastQC-like "￼Per base sequence content" plot
-    Plot fraction of nucleotides per position
-    zip will stop when shortest read is exhausted
-    '''
+def plot_nucleotide_diversity_bokeh(seqs, invert=False, y_range=None):
+    x_length = len([pos for pos in zip(*seqs)])
     if invert:
-        fqlists = [list(reversed(read)) for read in fqlists]
-    numreads = len(fqlists)
-    sns.set_style("darkgrid")
-    l_A, = ax.plot(
-        np.array([pos.count('A') / numreads for pos in zip(*fqlists)]), 'green', label='A')
-    l_T, = ax.plot(
-        np.array([pos.count('T') / numreads for pos in zip(*fqlists)]), 'red', label='T')
-    l_G, = ax.plot(
-        np.array([pos.count('G') / numreads for pos in zip(*fqlists)]), 'black', label='G')
-    l_C, = ax.plot(
-        np.array([pos.count('C') / numreads for pos in zip(*fqlists)]), 'blue', label='C')
+        seqs = [list(reversed(read)) for read in seqs]
+        p = figure(x_range=Range1d(start=x_length, end=0), y_range=y_range)
+    else:
+        p = figure()
+    p.grid.grid_line_alpha = 0.3
+    numreads = len(seqs)
+    for nucl, color in zip(['A', 'T', 'G', 'C'], ['green', 'red', 'black', 'blue']):
+        p.line(
+            x=range(x_length),
+            y=np.array([pos.count(nucl) / numreads for pos in zip(*seqs)]),
+            color=color,
+            legend=nucl)
     if invert:
-        ax.set_xticklabels(-1 * ax.get_xticks().astype(int))
-    return [l_A, l_T, l_G, l_C]
+        p.xaxis.axis_label = 'Position in read from end'
+    else:
+        p.xaxis.axis_label = 'Position in read from start'
+    p.yaxis.axis_label = 'Frequency of nucleotide in read'
+    return p
 
 
-def plot_qual(ax, quallist, invert=False):
+def plot_qual_bokeh(quallist, invert=False, y_range=None):
     '''
     Create a FastQC-like "￼Per base sequence quality￼" plot
     Plot average quality per position
     zip will stop when shortest read is exhausted
     '''
-    sns.set_style("darkgrid")
+    x_length = len([pos for pos in zip(*quallist)])
     if invert:
-        l_Q, = ax.plot(np.array([np.mean(position) for position in zip(
-            *[list(reversed(read)) for read in quallist])]), 'orange', label="Quality")
-        ax.set_xlabel('Position in read from end')
-        ax.set_xticklabels(-1 * ax.get_xticks().astype(int))
+        p = figure(x_range=Range1d(start=x_length, end=0), y_range=y_range)
+        p.grid.grid_line_alpha = 0.3
+        p.line(
+            x=range(x_length),
+            y=np.array([np.mean(position) for position in zip(
+                *[list(reversed(read)) for read in quallist])]),
+            color='orange',
+            legend="Quality")
+        p.xaxis.axis_label = 'Position in read from end'
     else:
-        l_Q, = ax.plot(np.array([np.mean(position)
-                                 for position in zip(*quallist)]), 'orange', label="Quality")
-        ax.set_xlabel('Position in read from start')
-    return l_Q
+        p = figure()
+        p.grid.grid_line_alpha = 0.3
+        p.line(
+            x=range(x_length),
+            y=np.array([np.mean(position)
+                        for position in zip(*quallist)]),
+            color='orange',
+            legend="Quality")
+        p.xaxis.axis_label = 'Position in read from start'
+    p.yaxis.axis_label = 'Mean quality score of base calls'
+    return p
 
 
 if __name__ == "__main__":
