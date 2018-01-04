@@ -30,9 +30,8 @@ setup(
     packages=find_packages() + ['scripts'],
     python_requires='>=3',
     install_requires=[
-        'seaborn',
+        'bokeh',
         'numpy',
-        'matplotlib>=2.0.0',
         'biopython'
     ],
     package_data={'nanoQC`': []},
