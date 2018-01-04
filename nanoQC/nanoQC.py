@@ -20,7 +20,7 @@ def get_args():
                         help="Print version and exit.",
                         action="version",
                         version='NanoQC {}'.format(__version__))
-    parser.add_argument("--outdir",
+    parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
     parser.add_argument("-f", "--format",
