@@ -6,7 +6,7 @@ Quality control tools for long read sequencing data aiming to replicate some of 
 [![Code Health](https://landscape.io/github/wdecoster/nanoQC/master/landscape.svg?style=flat)](https://landscape.io/github/wdecoster/nanoQC/master)
 
 Creates dynamic plots using [bokeh](https://bokeh.pydata.org/en/latest/).
-For a static example see my blog [Gigabase or gigabyte](https://gigabaseorgigabyte.wordpress.com/2017/06/15/per-base-sequence-content-and-quality-end-of-reads/)
+For an example see [here](http://decoster.xyz/wouter/)
 
 
 ## INSTALLATION
