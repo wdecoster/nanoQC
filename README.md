@@ -22,13 +22,13 @@ conda install -c bioconda nanoqc
 
 ## USAGE
 ```
-nanoQC [-h] [-v] [--outdir OUTDIR] fastq
+nanoQC [-h] [-v] [-o OUTDIR] fastq
 
 positional arguments:
-  fastq            Reads data in fastq format.
+  fastq                 Reads data in fastq.gz format.
 
 optional arguments:
-  -h, --help       show this help message and exit
-  -v, --version    Print version and exit.
-  -o, --outdir     Specify directory in which output has to be created.
+  -h, --help            show this help message and exit
+  -v, --version         Print version and exit.
+  -o, --outdir OUTDIR   Specify directory in which output has to be created.
 ```
