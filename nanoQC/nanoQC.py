@@ -23,12 +23,6 @@ def get_args():
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
-    parser.add_argument("-f", "--format",
-                        help="Specify the output format of the plots.",
-                        default="png",
-                        type=str,
-                        choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
-                                 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
     return parser.parse_args()
