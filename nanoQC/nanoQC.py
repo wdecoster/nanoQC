@@ -23,12 +23,6 @@ def get_args():
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
-    parser.add_argument("-f", "--format",
-                        help="Specify the output format of the plots.",
-                        default="png",
-                        type=str,
-                        choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
-                                 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
     return parser.parse_args()
@@ -51,8 +45,7 @@ def main():
     seq_plots, qual_plots = per_base_sequence_content_and_quality(
         fqbin=[dat[0] for dat in fq],
         qualbin=[dat[1] for dat in fq],
-        outdir=args.outdir,
-        figformat=args.format)
+        outdir=args.outdir)
     output_file("nanoQC.html", title="nanoQC_report")
     save(
         gridplot(children=[[hist], seq_plots, qual_plots],
@@ -71,7 +64,7 @@ def make_output_dir(path):
         sys.exit("ERROR: No writing permission to the output directory.")
 
 
-def per_base_sequence_content_and_quality(fqbin, qualbin, outdir, figformat):
+def per_base_sequence_content_and_quality(fqbin, qualbin, outdir):
     seq_plot_left = plot_nucleotide_diversity_bokeh(fqbin)
     seq_plot_right = plot_nucleotide_diversity_bokeh(
         fqbin, invert=True, y_range=seq_plot_left.y_range)
