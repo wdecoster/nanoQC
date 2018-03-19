@@ -32,12 +32,9 @@ optional arguments:
   -v, --version         Print version and exit.
   -o, --outdir OUTDIR   Specify directory in which output has to be created.
 ```
-<<<<<<< HEAD
 
 ## STATUS
 [![Code Health](https://landscape.io/github/wdecoster/nanoQC/master/landscape.svg?style=flat)](https://landscape.io/github/wdecoster/nanoQC/master)
 
 ## CITATION
 If you use this tool, please consider citing our [publication](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty149/4934939).
-=======
->>>>>>> 28e4f9f89ec5eadf9b13314c17abbcb8cfc7366a
