@@ -46,7 +46,7 @@ def main():
         fqbin=[dat[0] for dat in fq],
         qualbin=[dat[1] for dat in fq],
         outdir=args.outdir)
-    output_file("nanoQC.html", title="nanoQC_report")
+    output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
     save(
         gridplot(children=[[hist], seq_plots, qual_plots],
                  plot_width=400,
