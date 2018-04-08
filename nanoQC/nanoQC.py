@@ -36,16 +36,13 @@ def main():
         filename=os.path.join(args.outdir, "NanoQC.log"),
         level=logging.INFO)
     logging.info("NanoQC started.")
-    hist, sizeRange = length_histogram(
-        fqin=gzip.open(args.fastq, 'rt'),
-        name=os.path.join(args.outdir, "SequenceLengthDistribution.png"))
+    hist, sizeRange = length_histogram(fqin=gzip.open(args.fastq, 'rt'))
     fq = get_bin(gzip.open(args.fastq, 'rt'), sizeRange)
     logging.info("Using {} reads for plotting".format(len(fq)))
     logging.info("Creating plots...")
     seq_plots, qual_plots = per_base_sequence_content_and_quality(
         fqbin=[dat[0] for dat in fq],
-        qualbin=[dat[1] for dat in fq],
-        outdir=args.outdir)
+        qualbin=[dat[1] for dat in fq])
     output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
     save(
         gridplot(children=[[hist], seq_plots, qual_plots],
@@ -64,7 +61,7 @@ def make_output_dir(path):
         sys.exit("ERROR: No writing permission to the output directory.")
 
 
-def per_base_sequence_content_and_quality(fqbin, qualbin, outdir):
+def per_base_sequence_content_and_quality(fqbin, qualbin):
     seq_plot_left = plot_nucleotide_diversity_bokeh(fqbin)
     seq_plot_right = plot_nucleotide_diversity_bokeh(
         fqbin, invert=True, y_range=seq_plot_left.y_range)
@@ -81,7 +78,7 @@ def get_lengths(fastq):
     return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
 
 
-def length_histogram(fqin, name):
+def length_histogram(fqin):
     '''
     Create a histogram, and return the bin edges of the bin containing the most reads
     '''
