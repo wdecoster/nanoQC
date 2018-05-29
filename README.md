@@ -31,10 +31,12 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --version         Print version and exit.
   -o, --outdir OUTDIR   Specify directory in which output has to be created.
+  -l, --minlen int      Minimum length of reads to be included in the plots
 ```
-
-## STATUS
-[![Code Health](https://landscape.io/github/wdecoster/nanoQC/master/landscape.svg?style=flat)](https://landscape.io/github/wdecoster/nanoQC/master)
 
 ## CITATION
 If you use this tool, please consider citing our [publication](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty149/4934939).
+
+## CONTRIBUTIONS
+Thanks to:
+ - Jasper Ouwerkerk (@JasperO98) for improving how reads are selected (v0.8.0)
