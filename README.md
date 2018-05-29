@@ -39,4 +39,4 @@ If you use this tool, please consider citing our [publication](https://academic.
 
 ## CONTRIBUTIONS
 Thanks to:
- - @JasperO98 (Jasper Ouwerkerk) for improving how reads are selected (v0.8.0)
+ -  Jasper Ouwerkerk ([JasperO98](https://github.com/JasperO98)) for improving how reads are selected (v0.8.0)
