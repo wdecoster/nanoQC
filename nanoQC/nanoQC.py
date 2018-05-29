@@ -7,12 +7,12 @@ from argparse import ArgumentParser
 import gzip
 import logging
 from Bio import SeqIO
+from .version import __version__
 import numpy as np
 from bokeh.plotting import figure, save, output_file
 from bokeh.layouts import gridplot
 from bokeh.models import Range1d
 
-__version__ = "?"
 
 def get_args():
     parser = ArgumentParser(
@@ -28,7 +28,7 @@ def get_args():
                         help=("Filters the reads on a minimal "
                               "length of the given range.\nAlso plots"
                               " the given length/2 of the begin and "
-                              "end of the reads."
+                              "end of the reads."),
                         default=200)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
