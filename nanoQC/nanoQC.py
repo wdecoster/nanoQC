@@ -103,7 +103,6 @@ def length_histogram(fqin):
     '''
     lengths = get_lengths(fqin)
     hist, edges = np.histogram(lengths, bins='auto')
-    maxindex = np.argmax(hist)
 
     hist_norm = figure()
     hist_norm.quad(
