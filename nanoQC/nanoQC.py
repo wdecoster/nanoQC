@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
-    parser.add_argument("--minlen",
+    parser.add_argument("l", "--minlen",
                         help=("Filters the reads on a minimal "
                               "length of the given range.\nAlso plots"
                               " the given length/2 of the begin and "
