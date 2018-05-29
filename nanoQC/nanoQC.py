@@ -24,10 +24,11 @@ def get_args():
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
-    parser.add_argument("--range",
-                        help=("Head and tail range to visualize with quality "
-                              "plot.\nAlso filters the reads on a minimal "
-                              "length of the given range times two."),
+    parser.add_argument("--minlen",
+                        help=("Filters the reads on a minimal "
+                              "length of the given range.\nAlso plots"
+                              " the given length/2 of the begin and "
+                              "end of the reads."
                         default=200)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
@@ -37,7 +38,7 @@ def get_args():
 def main():
     args = get_args()
     make_output_dir(args.outdir)
-    sizeRange = int(args.range)
+    sizeRange = int(args.minlen/2)
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
