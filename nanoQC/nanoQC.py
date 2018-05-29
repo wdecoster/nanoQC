@@ -38,7 +38,7 @@ def get_args():
 def main():
     args = get_args()
     make_output_dir(args.outdir)
-    sizeRange = int(args.minlen/2)
+    sizeRange = int(args.minlen / 2)
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
@@ -54,11 +54,11 @@ def main():
         fq = get_bin(open(args.fastq, 'rt'), sizeRange)
     if len(fq) == 0:
         logging.critical(
-            "No reads with a higher length of {}.".format(sizeRange*2))
+            "No reads with a higher length of {}.".format(sizeRange * 2))
         logging.info("Exiting...")
     else:
         logging.info(("Using {} reads with a minimum length of {}bp for "
-                      "plotting").format(len(fq), sizeRange*2))
+                      "plotting").format(len(fq), sizeRange * 2))
         logging.info("Creating plots...")
         seq_plots, qual_plots = per_base_sequence_content_and_quality(
             head_seq=[dat[0] for dat in fq],
@@ -70,7 +70,6 @@ def main():
                       plot_width=400,
                       plot_height=400))
         logging.info("Finished!")
-    
 
 
 def make_output_dir(path):
@@ -127,9 +126,9 @@ def get_bin(fq, sizeRange):
     logging.info("Extracting nucleotides and quality scores.")
     return [(list(rec.seq)[:sizeRange],
              list(rec.letter_annotations["phred_quality"])[:sizeRange],
-             list(rec.seq[-1*sizeRange:]),
-             list(rec.letter_annotations["phred_quality"])[-1*sizeRange:])
-            for rec in SeqIO.parse(fq, "fastq") if len(rec) >= sizeRange*2]
+             list(rec.seq[-1 * sizeRange:]),
+             list(rec.letter_annotations["phred_quality"])[-1 * sizeRange:])
+            for rec in SeqIO.parse(fq, "fastq") if len(rec) >= sizeRange * 2]
 
 
 def plot_nucleotide_diversity_bokeh(seqs, invert=False):
@@ -190,7 +189,7 @@ def plot_qual_bokeh(quallist, invert=False):
         p.line(x=range(x_length),
                y=list(reversed(mean_quallist)),
                color='orange')
-        p.xaxis.axis_label = 'Position in read from end'       
+        p.xaxis.axis_label = 'Position in read from end'
     else:
         p = figure()
         p.grid.grid_line_alpha = 0.3
