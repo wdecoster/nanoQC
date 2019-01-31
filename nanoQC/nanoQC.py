@@ -87,10 +87,10 @@ def make_output_dir(path):
 
 
 def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual):
-    seq_plot_left = plot_nucleotide_diversity_bokeh(head_seq)
-    seq_plot_right = plot_nucleotide_diversity_bokeh(tail_seq, invert=True)
-    qual_plot_left = plot_qual_bokeh(head_qual)
-    qual_plot_right = plot_qual_bokeh(tail_qual, invert=True)
+    seq_plot_left = plot_nucleotide_diversity(head_seq)
+    seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True)
+    qual_plot_left = plot_qual(head_qual)
+    qual_plot_right = plot_qual(tail_qual, invert=True)
     logging.info("Per base sequence content and quality completed.")
     return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
 
@@ -135,7 +135,7 @@ def get_bin(fq, size_range):
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
 
-def plot_nucleotide_diversity_bokeh(seqs, invert=False):
+def plot_nucleotide_diversity(seqs, invert=False):
     x_length = len(seqs[0])
     if invert:
         p = figure(x_range=Range1d(start=x_length, end=0))
@@ -180,7 +180,7 @@ def get_qual_per_pos(quallist):
     return mean_qual_per_pos
 
 
-def plot_qual_bokeh(quallist, invert=False):
+def plot_qual(quallist, invert=False):
     '''
     Create a FastQC-like "￼Per base sequence quality￼" plot
     Plot average quality per position
