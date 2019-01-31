@@ -79,11 +79,11 @@ def compressed_input(inputfq):
     elif inputfq.endswith('.bz2'):
         import bz2
         return bz2.open(inputfq, 'rt')
-    elif inputfq.endswith(('.fastq', '.fq', 'fasta', '.fa', '.fas')):
+    elif inputfq.endswith(('.fastq', '.fq',)):
         return open(inputfq, 'r')
     else:
         sys.exit('INPUT ERROR:\nUnrecognized file extension in {}\n'
-                 'Supported are gz and bz2'.format(inputfq))
+                 'Supported are .gz, .bz2, .fastq and .fq'.format(inputfq))
 
 
 def length_histogram(fqin):
