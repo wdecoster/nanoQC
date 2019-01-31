@@ -4,14 +4,13 @@
 import os
 import sys
 from argparse import ArgumentParser
-import gzip
 import logging
 from Bio import SeqIO
-from .version import __version__
 import numpy as np
 from bokeh.plotting import figure, save, output_file
 from bokeh.layouts import gridplot
 from bokeh.models import Range1d
+from .version import __version__
 
 
 def get_args():
