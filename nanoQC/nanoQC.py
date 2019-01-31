@@ -55,14 +55,9 @@ def main():
         filename=os.path.join(args.outdir, "NanoQC.log"),
         level=logging.INFO)
     logging.info("NanoQC started.")
-    try:
-        hist = length_histogram(fqin=gzip.open(args.fastq, 'rt'))
-        fq = get_bin(gzip.open(args.fastq, 'rt'), sizeRange)
-    except:
-        logging.warning("Can't make length histogram if file is not zipped.")
-        logging.warning("Continuing without making a length histogram.")
-        hist = None
-        fq = get_bin(open(args.fastq, 'rt'), sizeRange)
+    hist = length_histogram(fqin=compressed_input(args.fastq))
+    fq = get_bin(fq=compressed_input(args.fastq),
+                 size_range=size_range)
     if len(fq) == 0:
         logging.critical(
             "No reads with a higher length of {}.".format(size_range * 2))
