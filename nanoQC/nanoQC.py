@@ -13,39 +13,6 @@ from bokeh.models import Range1d
 from .version import __version__
 
 
-def get_args():
-    parser = ArgumentParser(
-        description="Investigate nucleotide composition and base quality.")
-    parser.add_argument("-v", "--version",
-                        help="Print version and exit.",
-                        action="version",
-                        version='NanoQC {}'.format(__version__))
-    parser.add_argument("-o", "--outdir",
-                        help="Specify directory in which output has to be created.",
-                        default=".")
-    parser.add_argument("-l", "--minlen",
-                        help=("Filters the reads on a minimal length of the given range.\n"
-                              "Also plots the given length/2 of the begin and end of the reads."),
-                        default=200)
-    parser.add_argument("fastq",
-                        help="Reads data in fastq.gz format.")
-    return parser.parse_args()
-
-
-def compressed_input(inputfq):
-    if inputfq.endswith('.gz'):
-        import gzip
-        return gzip.open(inputfq, 'rt')
-    elif inputfq.endswith('.bz2'):
-        import bz2
-        return bz2.open(inputfq, 'rt')
-    elif inputfq.endswith(('.fastq', '.fq', 'fasta', '.fa', '.fas')):
-        return open(inputfq, 'r')
-    else:
-        sys.exit('INPUT ERROR:\nUnrecognized file extension in {}\n'
-                 'Supported are gz and bz2'.format(inputfq))
-
-
 def main():
     args = get_args()
     make_output_dir(args.outdir)
@@ -78,6 +45,25 @@ def main():
         logging.info("Finished!")
 
 
+def get_args():
+    parser = ArgumentParser(
+        description="Investigate nucleotide composition and base quality.")
+    parser.add_argument("-v", "--version",
+                        help="Print version and exit.",
+                        action="version",
+                        version='NanoQC {}'.format(__version__))
+    parser.add_argument("-o", "--outdir",
+                        help="Specify directory in which output has to be created.",
+                        default=".")
+    parser.add_argument("-l", "--minlen",
+                        help=("Filters the reads on a minimal length of the given range.\n"
+                              "Also plots the given length/2 of the begin and end of the reads."),
+                        default=200)
+    parser.add_argument("fastq",
+                        help="Reads data in fastq.gz format.")
+    return parser.parse_args()
+
+
 def make_output_dir(path):
     try:
         if not os.path.exists(path):
@@ -86,20 +72,18 @@ def make_output_dir(path):
         sys.exit("ERROR: No writing permission to the output directory.")
 
 
-def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual):
-    seq_plot_left = plot_nucleotide_diversity(head_seq)
-    seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True)
-    qual_plot_left = plot_qual(head_qual)
-    qual_plot_right = plot_qual(tail_qual, invert=True)
-    logging.info("Per base sequence content and quality completed.")
-    return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
-
-
-def get_lengths(fastq):
-    '''
-    Loop over the fastq file, extract length of sequences
-    '''
-    return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
+def compressed_input(inputfq):
+    if inputfq.endswith('.gz'):
+        import gzip
+        return gzip.open(inputfq, 'rt')
+    elif inputfq.endswith('.bz2'):
+        import bz2
+        return bz2.open(inputfq, 'rt')
+    elif inputfq.endswith(('.fastq', '.fq', 'fasta', '.fa', '.fas')):
+        return open(inputfq, 'r')
+    else:
+        sys.exit('INPUT ERROR:\nUnrecognized file extension in {}\n'
+                 'Supported are gz and bz2'.format(inputfq))
 
 
 def length_histogram(fqin):
@@ -119,6 +103,22 @@ def length_histogram(fqin):
         line_color="#033649")
     hist_norm.xaxis[0].formatter.use_scientific = False
     return hist_norm
+
+
+def get_lengths(fastq):
+    '''
+    Loop over the fastq file, extract length of sequences
+    '''
+    return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
+
+
+def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual):
+    seq_plot_left = plot_nucleotide_diversity(head_seq)
+    seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True)
+    qual_plot_left = plot_qual(head_qual)
+    qual_plot_right = plot_qual(tail_qual, invert=True)
+    logging.info("Per base sequence content and quality completed.")
+    return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
 
 
 def get_bin(fq, size_range):
