@@ -37,7 +37,8 @@ def main():
             head_seq=[dat[0] for dat in fq],
             head_qual=[dat[1] for dat in fq],
             tail_seq=[dat[2] for dat in fq],
-            tail_qual=[dat[3] for dat in fq])
+            tail_qual=[dat[3] for dat in fq],
+            rna=args.rna)
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
         save(gridplot(children=[[hist], seq_plots, qual_plots],
                       plot_width=400,
@@ -55,6 +56,9 @@ def get_args():
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
+    parser.add_argument("--rna",
+                        help="Fastq is from direct RNA-seq and contains U nucleotides.",
+                        action="store_true")
     parser.add_argument("-l", "--minlen",
                         help=("Filters the reads on a minimal length of the given range.\n"
                               "Also plots the given length/2 of the begin and end of the reads."),
@@ -112,9 +116,9 @@ def get_lengths(fastq):
     return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
 
 
-def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual):
-    seq_plot_left = plot_nucleotide_diversity(head_seq)
-    seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True)
+def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual, rna=False):
+    seq_plot_left = plot_nucleotide_diversity(head_seq, rna=rna)
+    seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True, rna=rna)
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
     logging.info("Per base sequence content and quality completed.")
@@ -135,7 +139,7 @@ def get_bin(fq, size_range):
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
 
-def plot_nucleotide_diversity(seqs, invert=False):
+def plot_nucleotide_diversity(seqs, invert=False, rna=False):
     x_length = len(seqs[0])
     if invert:
         p = figure(x_range=Range1d(start=x_length, end=0))
@@ -143,8 +147,8 @@ def plot_nucleotide_diversity(seqs, invert=False):
         p = figure()
     p.grid.grid_line_alpha = 0.3
     numreads = len(seqs)
-    for nucl, color in zip(['A', 'T', 'G', 'C'],
-                           ['green', 'red', 'black', 'blue']):
+    for nucl, color in zip(['A', 'U' if rna else 'T', 'G', 'C'],
+                           ['green', 'pink' if rna else 'red', 'black', 'blue']):
         if invert:
             p.xaxis.axis_label = 'Position in read from end'
             p.line(
