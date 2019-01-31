@@ -33,6 +33,20 @@ def get_args():
     return parser.parse_args()
 
 
+def compressed_input(inputfq):
+    if inputfq.endswith('.gz'):
+        import gzip
+        return gzip.open(inputfq, 'rt')
+    elif inputfq.endswith('.bz2'):
+        import bz2
+        return bz2.open(inputfq, 'rt')
+    elif inputfq.endswith(('.fastq', '.fq', 'fasta', '.fa', '.fas')):
+        return open(inputfq, 'r')
+    else:
+        sys.exit('INPUT ERROR:\nUnrecognized file extension in {}\n'
+                 'Supported are gz and bz2'.format(inputfq))
+
+
 def main():
     args = get_args()
     make_output_dir(args.outdir)
