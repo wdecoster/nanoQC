@@ -25,10 +25,8 @@ def get_args():
                         help="Specify directory in which output has to be created.",
                         default=".")
     parser.add_argument("-l", "--minlen",
-                        help=("Filters the reads on a minimal "
-                              "length of the given range.\nAlso plots"
-                              " the given length/2 of the begin and "
-                              "end of the reads."),
+                        help=("Filters the reads on a minimal length of the given range.\n"
+                              "Also plots the given length/2 of the begin and end of the reads."),
                         default=200)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
@@ -38,7 +36,7 @@ def get_args():
 def main():
     args = get_args()
     make_output_dir(args.outdir)
-    sizeRange = int(args.minlen / 2)
+    size_range = int(args.minlen / 2)
     logging.basicConfig(
         format='%(asctime)s %(message)s',
         filename=os.path.join(args.outdir, "NanoQC.log"),
@@ -54,11 +52,11 @@ def main():
         fq = get_bin(open(args.fastq, 'rt'), sizeRange)
     if len(fq) == 0:
         logging.critical(
-            "No reads with a higher length of {}.".format(sizeRange * 2))
+            "No reads with a higher length of {}.".format(size_range * 2))
         logging.info("Exiting...")
     else:
-        logging.info(("Using {} reads with a minimum length of {}bp for "
-                      "plotting").format(len(fq), sizeRange * 2))
+        logging.info(("Using {} reads with a minimum length of {}bp for plotting")
+                     .format(len(fq), size_range * 2))
         logging.info("Creating plots...")
         seq_plots, qual_plots = per_base_sequence_content_and_quality(
             head_seq=[dat[0] for dat in fq],
@@ -80,8 +78,7 @@ def make_output_dir(path):
         sys.exit("ERROR: No writing permission to the output directory.")
 
 
-def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq,
-                                          tail_qual):
+def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual):
     seq_plot_left = plot_nucleotide_diversity_bokeh(head_seq)
     seq_plot_right = plot_nucleotide_diversity_bokeh(tail_seq, invert=True)
     qual_plot_left = plot_qual_bokeh(head_qual)
@@ -116,18 +113,18 @@ def length_histogram(fqin):
     return hist_norm
 
 
-def get_bin(fq, sizeRange):
+def get_bin(fq, size_range):
     '''
     Loop over the fastq file
     Extract list of nucleotides and list of quality scores in tuples in list
     Only select those reads of which the length is within the size range
     '''
     logging.info("Extracting nucleotides and quality scores.")
-    return [(list(rec.seq)[:sizeRange],
-             list(rec.letter_annotations["phred_quality"])[:sizeRange],
-             list(rec.seq[-1 * sizeRange:]),
-             list(rec.letter_annotations["phred_quality"])[-1 * sizeRange:])
-            for rec in SeqIO.parse(fq, "fastq") if len(rec) >= sizeRange * 2]
+    return [(list(rec.seq)[:size_range],
+             list(rec.letter_annotations["phred_quality"])[:size_range],
+             list(rec.seq[-1 * size_range:]),
+             list(rec.letter_annotations["phred_quality"])[-1 * size_range:])
+            for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
 
 def plot_nucleotide_diversity_bokeh(seqs, invert=False):
@@ -138,7 +135,8 @@ def plot_nucleotide_diversity_bokeh(seqs, invert=False):
         p = figure()
     p.grid.grid_line_alpha = 0.3
     numreads = len(seqs)
-    for nucl, color in zip(['A', 'T', 'G', 'C'], ['green', 'red', 'black', 'blue']):
+    for nucl, color in zip(['A', 'T', 'G', 'C'],
+                           ['green', 'red', 'black', 'blue']):
         if invert:
             p.xaxis.axis_label = 'Position in read from end'
             p.line(
