@@ -205,7 +205,7 @@ def plot_qual(quallist, invert=False):
         p.line(x=range(x_length),
                y=mean_quallist,
                color='orange')
-    p.xaxis.axis_label = 'Position in read from start'
+        p.xaxis.axis_label = 'Position in read from start'
     p.yaxis.axis_label = 'Mean quality score of base calls'
     return p
 
