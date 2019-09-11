@@ -62,7 +62,8 @@ def get_args():
     parser.add_argument("-l", "--minlen",
                         help=("Filters the reads on a minimal length of the given range.\n"
                               "Also plots the given length/2 of the begin and end of the reads."),
-                        default=200)
+                        default=200,
+                        type=int)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
     return parser.parse_args()
