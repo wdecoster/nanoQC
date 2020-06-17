@@ -32,6 +32,8 @@ optional arguments:
   -v, --version         Print version and exit.
   -o, --outdir OUTDIR   Specify directory in which output has to be created.
   -l, --minlen int      Minimum length of reads to be included in the plots
+                        This also controls the length plotted in the graphs
+                        from the beginning and end of reads (length plotted = minlen / 2)
 ```
 
 ## CITATION
