@@ -156,14 +156,14 @@ def plot_nucleotide_diversity(seqs, invert=False, rna=False):
                 x=range(x_length),
                 y=list(reversed(np.array([pos.count(nucl) / numreads for pos in zip(*seqs)]))),
                 color=color,
-                legend=nucl)
+                legend_label=nucl)
         else:
             p.xaxis.axis_label = 'Position in read from start'
             p.line(
                 x=range(x_length),
                 y=np.array([pos.count(nucl) / numreads for pos in zip(*seqs)]),
                 color=color,
-                legend=nucl)
+                legend_label=nucl)
     p.yaxis.axis_label = 'Frequency of nucleotide in read'
     return p
 
