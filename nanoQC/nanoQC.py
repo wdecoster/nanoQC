@@ -1,5 +1,6 @@
 # wdecoster
 # Edited by j.ouwerkerk
+# Puneet Added GC%
 
 import os
 import sys
@@ -10,7 +11,7 @@ import numpy as np
 from bokeh.plotting import figure, save, output_file
 from bokeh.layouts import gridplot
 from bokeh.models import Range1d
-from .version import __version__
+from version import __version__
 
 
 def main():
@@ -66,6 +67,8 @@ def get_args():
                         type=int)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
+    parser.add_argument("gc",
+                        help="Calculates the GC%")
     return parser.parse_args()
 
 
