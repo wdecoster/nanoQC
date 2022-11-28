@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 biopython = "*"
 bokeh = "*"
+build = "*"
 
 [dev-packages]
 
