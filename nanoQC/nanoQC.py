@@ -9,7 +9,8 @@ import logging
 from Bio import SeqIO
 import numpy as np
 from bokeh.plotting import figure, save, output_file
-from bokeh.layouts import gridplot
+from bokeh.layouts import gridplot, row
+from bokeh.layouts import layout
 from bokeh.models import Range1d
 from version import __version__
 
@@ -48,9 +49,11 @@ def main():
             rna=args.rna)
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
         #   save(gridplot([[hist], seq_plots,qual_plots],
-        save(gridplot([[hist]],
-                      width=400,
-                      height=400))
+        
+        save(layout([[hist],row(seq_plots)]))
+        # save(gridplot([[hist]],
+        #               width=400,
+        #               height=400))
         logging.info("Finished!")
 
 
@@ -219,6 +222,7 @@ def plot_qual(quallist, invert=False):
                color='orange')
         p.xaxis.axis_label = 'Position in read from start'
     p.yaxis.axis_label = 'Mean quality score of base calls'
+    print(p)
     return p
 
 
