@@ -30,7 +30,8 @@ def main():
                  size_range=size_range)
     gc = args.gc
     if gc:
-        logging.info("Calculate qc stats")
+        logging.info("Calculate gc stats")
+        print(len(fq))
     if len(fq) == 0:
         logging.critical(
             "No reads with a higher length of {}.".format(size_range * 2))
@@ -46,10 +47,8 @@ def main():
             tail_qual=[dat[3] for dat in fq],
             rna=args.rna)
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
-        # save(gridplot(children=[[hist], seq_plots, qual_plots],
-        #               plot_width=400,
-        #               plot_height=400))
-        save(gridplot([seq_plots, qual_plots],
+        #   save(gridplot([[hist], seq_plots,qual_plots],
+        save(gridplot([[hist]],
                       width=400,
                       height=400))
         logging.info("Finished!")
@@ -75,7 +74,7 @@ def get_args():
                         type=int)
     parser.add_argument("fastq",
                         help="Reads data in fastq.gz format.")
-    parser.add_argument("-gc",
+    parser.add_argument("--gc",
                         action="store_true",
                         help="Calculates the GC%")
     return parser.parse_args()
@@ -135,7 +134,6 @@ def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qu
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
     logging.info("Per base sequence content and quality completed.")
-    print([seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right])
     return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
 
 
