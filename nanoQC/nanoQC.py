@@ -54,7 +54,6 @@ def main():
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
 
         save(gridplot([[hist], seq_plots, qual_plots, [gc_plots]],
-        # save(gridplot([[hist], seq_plots, qual_plots],
                       width=400,
                       height=400))
 
