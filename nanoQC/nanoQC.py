@@ -43,7 +43,7 @@ def main():
                      .format(len(fq), size_range * 2))
         logging.info("Creating plots...")
         
-        seq_plots, qual_plots = per_base_sequence_content_and_quality(
+        seq_plots, qual_plots, gc_plots = per_base_sequence_content_and_quality(
             head_seq=[dat[0] for dat in fq],
             head_qual=[dat[1] for dat in fq],
             tail_seq=[dat[2] for dat in fq],
@@ -52,6 +52,8 @@ def main():
 
         
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
+        print(gc_plots)
+        # save(gridplot([[hist], seq_plots, qual_plots, [gc_plots]],
         save(gridplot([[hist], seq_plots, qual_plots],
                       width=400,
                       height=400))
@@ -138,8 +140,10 @@ def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qu
     seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True, rna=rna)
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
+    gc_plot = plot_gc_percentage(head_seq+tail_seq)
+    gc_plot = qual_plot_right
     logging.info("Per base sequence content and quality completed.")
-    return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right]
+    return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right], gc_plot
 
 
 def get_bin(fq, size_range):
@@ -155,7 +159,9 @@ def get_bin(fq, size_range):
              list(rec.letter_annotations["phred_quality"])[-1 * size_range:])
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
-    
+def plot_gc_percentage(seqs):
+    print(seqs)
+    return seqs
 def plot_nucleotide_diversity(seqs, invert=False, rna=False):
     x_length = len(seqs[0])
     if invert:
