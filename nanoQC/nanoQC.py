@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 import logging
 from Bio import SeqIO
 import numpy as np
+from bokeh.io import output_file, show
 from bokeh.plotting import figure, save, output_file
 from bokeh.layouts import gridplot, row
 from bokeh.layouts import layout
@@ -31,8 +32,8 @@ def main():
                  size_range=size_range)
     gc = args.gc
     if gc:
+        print("Add GC functionality")
         logging.info("Calculate gc stats")
-        print(len(fq))
     if len(fq) == 0:
         logging.critical(
             "No reads with a higher length of {}.".format(size_range * 2))
@@ -41,19 +42,20 @@ def main():
         logging.info(("Using {} reads with a minimum length of {}bp for plotting")
                      .format(len(fq), size_range * 2))
         logging.info("Creating plots...")
+        
         seq_plots, qual_plots = per_base_sequence_content_and_quality(
             head_seq=[dat[0] for dat in fq],
             head_qual=[dat[1] for dat in fq],
             tail_seq=[dat[2] for dat in fq],
             tail_qual=[dat[3] for dat in fq],
             rna=args.rna)
-        output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
-        #   save(gridplot([[hist], seq_plots,qual_plots],
+
         
-        save(layout([[hist],row(seq_plots)]))
-        # save(gridplot([[hist]],
-        #               width=400,
-        #               height=400))
+        output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
+        save(gridplot([[hist], seq_plots, qual_plots],
+                      width=400,
+                      height=400))
+
         logging.info("Finished!")
 
 
@@ -153,7 +155,7 @@ def get_bin(fq, size_range):
              list(rec.letter_annotations["phred_quality"])[-1 * size_range:])
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
-
+    
 def plot_nucleotide_diversity(seqs, invert=False, rna=False):
     x_length = len(seqs[0])
     if invert:
@@ -167,14 +169,14 @@ def plot_nucleotide_diversity(seqs, invert=False, rna=False):
         if invert:
             p.xaxis.axis_label = 'Position in read from end'
             p.line(
-                x=range(x_length),
+                x=np.arange(start=0, stop=x_length, step=1),
                 y=list(reversed(np.array([pos.count(nucl) / numreads for pos in zip(*seqs)]))),
                 color=color,
                 legend_label=nucl)
         else:
             p.xaxis.axis_label = 'Position in read from start'
             p.line(
-                x=range(x_length),
+                x=np.arange(start=0, stop=x_length, step=1),
                 y=np.array([pos.count(nucl) / numreads for pos in zip(*seqs)]),
                 color=color,
                 legend_label=nucl)
@@ -210,19 +212,18 @@ def plot_qual(quallist, invert=False):
     if invert:
         p = figure(x_range=Range1d(start=x_length, end=0))
         p.grid.grid_line_alpha = 0.3
-        p.line(x=range(x_length),
+        p.line(x=np.arange(start=0, stop=x_length, step=1),
                y=list(reversed(mean_quallist)),
                color='orange')
         p.xaxis.axis_label = 'Position in read from end'
     else:
         p = figure()
         p.grid.grid_line_alpha = 0.3
-        p.line(x=range(x_length),
+        p.line(x=np.arange(start=0, stop=x_length, step=1),
                y=mean_quallist,
                color='orange')
         p.xaxis.axis_label = 'Position in read from start'
     p.yaxis.axis_label = 'Mean quality score of base calls'
-    print(p)
     return p
 
 
