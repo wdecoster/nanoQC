@@ -52,9 +52,9 @@ def main():
 
         
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
-        print(gc_plots)
-        # save(gridplot([[hist], seq_plots, qual_plots, [gc_plots]],
-        save(gridplot([[hist], seq_plots, qual_plots],
+
+        save(gridplot([[hist], seq_plots, qual_plots, [gc_plots]],
+        # save(gridplot([[hist], seq_plots, qual_plots],
                       width=400,
                       height=400))
 
@@ -141,7 +141,6 @@ def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qu
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
     gc_plot = plot_gc_percentage(head_seq+tail_seq)
-    gc_plot = qual_plot_right
     logging.info("Per base sequence content and quality completed.")
     return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right], gc_plot
 
@@ -160,8 +159,25 @@ def get_bin(fq, size_range):
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
 def plot_gc_percentage(seqs):
-    print(seqs)
-    return seqs
+    x_length = len(seqs[0])
+    p = figure()
+    p.grid.grid_line_alpha = 0.3
+    numreads = []
+    color = "green"
+    
+    for read in seqs:
+        numreads.append(read.count('G')+read.count('C') / x_length)
+
+    p.xaxis.axis_label = 'Position in read from start'
+    p.line(
+        x=np.arange(start=0, stop=x_length, step=1),
+        y=np.array(numreads),
+        color=color,
+        legend_label="GC%")
+    p.yaxis.axis_label = "GC% of the reads"
+    return p
+
+
 def plot_nucleotide_diversity(seqs, invert=False, rna=False):
     x_length = len(seqs[0])
     if invert:
