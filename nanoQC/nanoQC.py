@@ -137,7 +137,7 @@ def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qu
     qual_plot_right = plot_qual(tail_qual, invert=True)
     if gc:
         gc_plot = plot_gc_percentage([*head_seq, *tail_seq])
-        logging.info("Per base sequence content and quality completed.")
+        logging.info("GC% graphs generated.")
     logging.info("Per base sequence content and quality completed.")
     return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right], gc_plot
 
