@@ -30,10 +30,7 @@ def main():
     hist = length_histogram(fqin=compressed_input(args.fastq))
     fq = get_bin(fq=compressed_input(args.fastq),
                  size_range=size_range)
-    gc = args.gc
-    if gc:
-        print("Add GC functionality")
-        logging.info("Calculate gc stats")
+    
     if len(fq) == 0:
         logging.critical(
             "No reads with a higher length of {}.".format(size_range * 2))
@@ -48,15 +45,13 @@ def main():
             head_qual=[dat[1] for dat in fq],
             tail_seq=[dat[2] for dat in fq],
             tail_qual=[dat[3] for dat in fq],
-            rna=args.rna)
-
-        
+            rna=args.rna,
+            gc = args.gc
+            )      
         output_file(os.path.join(args.outdir, "nanoQC.html"), title="nanoQC_report")
-
         save(gridplot([[hist], seq_plots, qual_plots, [gc_plots]],
-                      width=400,
-                      height=400))
-
+                        width=400,
+                        height=400))
         logging.info("Finished!")
 
 
@@ -134,12 +129,16 @@ def get_lengths(fastq):
     return np.array([len(record) for record in SeqIO.parse(fastq, "fastq")])
 
 
-def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual, rna=False):
+def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qual, rna=False, gc=False):
+    gc_plot= figure()
     seq_plot_left = plot_nucleotide_diversity(head_seq, rna=rna)
     seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True, rna=rna)
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
-    gc_plot = plot_gc_percentage(head_seq+tail_seq)
+    gc_plot
+    if gc:
+        gc_plot = plot_gc_percentage([*head_seq, *tail_seq])
+        logging.info("Per base sequence content and quality completed.")
     logging.info("Per base sequence content and quality completed.")
     return [seq_plot_left, seq_plot_right], [qual_plot_left, qual_plot_right], gc_plot
 
