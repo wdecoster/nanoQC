@@ -7,6 +7,7 @@ import sys
 from argparse import ArgumentParser
 import logging
 from Bio import SeqIO
+from Bio.SeqUtils import GC
 import numpy as np
 from bokeh.io import output_file 
 from bokeh.plotting import figure, save, output_file
@@ -158,19 +159,29 @@ def plot_gc_percentage(seqs):
     x_length = len(seqs[0])
     p = figure()
     p.grid.grid_line_alpha = 0.3
-    numreads = []
     color = "green"
-    
+    gc_reads = []
+    numreads = []
     for read in seqs:
+        gc_reads.append(GC(read))
         numreads.append(read.count('G')+read.count('C') / x_length)
 
+    gc_reads = sorted(gc_reads)
+    numreads = numreads
     p.xaxis.axis_label = 'Position in read from start'
+    p.line(
+        x=np.arange(start=0, stop=x_length, step=1),
+        y=np.array(gc_reads),
+        color="blue",
+        legend_label="GC% using seqIO"
+        )
+
     p.line(
         x=np.arange(start=0, stop=x_length, step=1),
         y=np.array(numreads),
         color=color,
-        legend_label="GC%")
-    p.yaxis.axis_label = "GC% of the reads"
+        legend_label="GC% using calculation")
+    p.yaxis.axis_label = "GC% of the unsorted reads"
     return p
 
 
