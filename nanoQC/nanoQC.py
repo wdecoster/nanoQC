@@ -135,7 +135,6 @@ def per_base_sequence_content_and_quality(head_seq, head_qual, tail_seq, tail_qu
     seq_plot_right = plot_nucleotide_diversity(tail_seq, invert=True, rna=rna)
     qual_plot_left = plot_qual(head_qual)
     qual_plot_right = plot_qual(tail_qual, invert=True)
-    gc_plot
     if gc:
         gc_plot = plot_gc_percentage([*head_seq, *tail_seq])
         logging.info("Per base sequence content and quality completed.")
