@@ -8,10 +8,9 @@ from argparse import ArgumentParser
 import logging
 from Bio import SeqIO
 import numpy as np
-from bokeh.io import output_file, show
+from bokeh.io import output_file 
 from bokeh.plotting import figure, save, output_file
-from bokeh.layouts import gridplot, row
-from bokeh.layouts import layout
+from bokeh.layouts import gridplot
 from bokeh.models import Range1d
 from version import __version__
 
