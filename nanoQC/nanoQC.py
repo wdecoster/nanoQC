@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 import logging
 from Bio import SeqIO
-from Bio.SeqUtils import GC
+from Bio.SeqUtils import gc_fraction
 import numpy as np
 from bokeh.io import output_file 
 from bokeh.plotting import figure, save, output_file
@@ -156,32 +156,24 @@ def get_bin(fq, size_range):
             for rec in SeqIO.parse(fq, "fastq") if len(rec) >= size_range * 2]
 
 def plot_gc_percentage(seqs):
-    x_length = len(seqs[0])
     p = figure()
     p.grid.grid_line_alpha = 0.3
-    color = "green"
-    gc_reads = []
-    numreads = []
+    gc_per_read = []
+    
     for read in seqs:
-        gc_reads.append(GC(read))
-        numreads.append(read.count('G')+read.count('C') / x_length)
+        gc_per_read.append(gc_fraction(read))
 
-    gc_reads = sorted(gc_reads)
-    numreads = numreads
-    p.xaxis.axis_label = 'Position in read from start'
+    x_length = len(gc_per_read)
+    
+    p.xaxis.axis_label = 'Position in read'
+    # GC%
     p.line(
         x=np.arange(start=0, stop=x_length, step=1),
-        y=np.array(gc_reads),
+        y=np.array(gc_per_read),
         color="blue",
-        legend_label="GC% using seqIO"
+        legend_label="GC% of the reads"
         )
-
-    p.line(
-        x=np.arange(start=0, stop=x_length, step=1),
-        y=np.array(numreads),
-        color=color,
-        legend_label="GC% using calculation")
-    p.yaxis.axis_label = "GC% of the unsorted reads"
+    
     return p
 
 

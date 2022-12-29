@@ -31,7 +31,7 @@ setup(
     packages=find_packages() + ['scripts'],
     python_requires='>=3',
     install_requires=[
-        'bokeh==3.0.3',
+        'bokeh',
         'numpy',
         'biopython'
     ],
