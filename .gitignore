@@ -5,3 +5,4 @@ nanoQC/__pycache__/
 dist/
 nanotest/*
 *.log
+nanoQC.html
