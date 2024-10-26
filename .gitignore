@@ -3,3 +3,5 @@ README.rst
 nanoQC.egg-info/
 nanoQC/__pycache__/
 dist/
+nanoQC.html
+NanoQC.log
