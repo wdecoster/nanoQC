@@ -10,7 +10,7 @@ exec(open("nanoQC/version.py").read())
 
 setup(
     name="nanoQC",
-    version=__version__,
+    version=__version__,  # noqa F821
     description="Create fastQC-like plots for Oxford Nanopore sequencing data",
     long_description=open(path.join(here, "README.md")).read(),
     long_description_content_type="text/markdown",
